@@ -1,11 +1,11 @@
-# ==============================================
-#                   SimpleFTP
+# =================================================
+#                   FTPOverSocket
 #
 # Author:   Guozhi Wang
 # Date:     Sep 12 2019
-# Verwion:  0.0.1
-# This file is a course homework of CNT5106C.
-# ==============================================
+# Version:  0.0.3
+# This project is a course homework of CNT5106C@UF.
+# =================================================
 import time
 import json
 import socketserver
@@ -14,8 +14,7 @@ import os
 BUFFER_SIZE = 4096
 FILE_NAME = ""
 
-# 统一格式输出日志 action为动作标识 msg为日志信息 case为消息类型
-# case默认为0 0:普通 蓝色 1:警告 红色 2:成功 绿色 3:小问题 黄色
+
 def log(action, msg, case=0):
     print(time.asctime() + ' [' + action, end=']:\t')
     if case == 0:
@@ -29,7 +28,6 @@ def log(action, msg, case=0):
     print(msg + '\033[0m')
 
 
-# 用于收发Socket数据包的服务器
 class FTPOverSocketServer(socketserver.BaseRequestHandler):
     def handle(self):
         conn = self.request
