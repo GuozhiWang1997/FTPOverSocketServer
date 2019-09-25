@@ -1,9 +1,10 @@
 # =================================================
-#                   FTPOverSocket
+#               FTPOverSocket_Server
 #
-# Author:   Guozhi Wang
-# Date:     Sep 12 2019
-# Version:  0.0.3
+# Author:       Guozhi Wang
+# Init Date:    Sep 12 2019
+# Last Mod:     Sep 25 2019
+# Version:      0.0.7
 # This project is a course homework of CNT5106C@UF.
 # =================================================
 import time
@@ -28,6 +29,7 @@ def log(action, msg, case=0):
         print('\033[1;33m', end='')
     print(msg + '\033[0m')
 
+
 def login(username, password):
     with open("./userlist.yml", "r") as file:
         lines = file.read()
@@ -47,6 +49,8 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
         log('CON_EST', 'Established connection with ' + client_ip + ':' + str(client_port))
         file = None
         is_logged_in = False
+        username = None
+        password = None
         while True:
             if not is_logged_in:
                 ret_bytes = conn.recv(BUFFER_SIZE)
@@ -56,6 +60,8 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
                     if login(account[0], account[1]):
                         is_logged_in = True
                         conn.sendall(bytes("LOGIN_SUCCESS", "utf-8"))
+                        username = account[0]
+                        password = account[1]
                     else:
                         conn.sendall(bytes("WRONG_ACCOUNT", "utf-8"))
                         continue
@@ -83,7 +89,7 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
                     continue
 
                 if req["action"] == "dir":
-                    file_list = os.listdir('./files/')
+                    file_list = os.listdir('./files/' + username + '/')
                     msg = ""
                     for file_name in file_list:
                         msg = msg + file_name + "\n"
@@ -91,16 +97,16 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
 
                 elif req["action"] == "get":
                     file_name = req["filename"]
-                    with open("./files/" + file_name, 'rb') as file:
-                        isFirst = True
+                    with open("./files/" + username + '/' + file_name, 'rb') as file:
+                        is_first = True
                         while True:
                             buffer = file.read(BUFFER_SIZE)
-                            if isFirst:
+                            if is_first:
                                 if not buffer:
                                     log('EPT_FLE', 'The file is empty!')
                                     conn.sendall(bytes("EMPTY FILE", encoding="utf-8"))
                                     break;
-                                isFirst = False
+                                is_first = False
                             if not buffer:
                                 break;
                             if buffer:
@@ -110,7 +116,7 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
                 elif req["action"] == "upload":
                     FILE_NAME = req["filename"]
                     receiving_upload = True
-                    file = open("./files/" + FILE_NAME, 'wb')
+                    file = open("./files/" + username + "/" + FILE_NAME, 'wb')
                     log('FLE_REC', 'Starting receiving ' + FILE_NAME + ' from ' + str(client_ip))
 
                 elif req["action"] == "quit":
