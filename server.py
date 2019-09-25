@@ -40,6 +40,13 @@ def login(username, password):
         return False
 
 
+def get_stat(filepath):
+    stat = os.stat(filepath)
+    file_time = time.asctime(time.localtime(stat.st_mtime))
+    file_size = stat.st_size
+    return str(file_time) + "?" + str(file_size)
+
+
 class FTPOverSocketServer(socketserver.BaseRequestHandler):
     def handle(self):
         conn = self.request
@@ -98,6 +105,8 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
                 elif req["action"] == "get":
                     file_name = req["filename"]
                     with open("./files/" + username + '/' + file_name, 'rb') as file:
+                        file_length = str(os.path.getsize("./files/" + username + '/' + file_name)).zfill(9)
+                        conn.sendall(bytes(file_length, encoding="utf-8"))
                         is_first = True
                         while True:
                             buffer = file.read(BUFFER_SIZE)
@@ -118,6 +127,11 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
                     receiving_upload = True
                     file = open("./files/" + username + "/" + FILE_NAME, 'wb')
                     log('FLE_REC', 'Starting receiving ' + FILE_NAME + ' from ' + str(client_ip))
+
+                elif req["action"] == "detail":
+                    FILE_NAME = req["filename"]
+                    filepath = "./files/" + username + "/" + FILE_NAME
+                    conn.sendall(bytes(get_stat(filepath) + "?" + username, encoding="utf-8"))
 
                 elif req["action"] == "quit":
                     log('CON_END', 'Connection closed with ' + str(client_ip))
