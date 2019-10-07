@@ -133,9 +133,19 @@ class FTPOverSocketServer(socketserver.BaseRequestHandler):
                     filepath = "./files/" + username + "/" + FILE_NAME
                     conn.sendall(bytes(get_stat(filepath) + "?" + username, encoding="utf-8"))
 
+                elif req["action"] == "remove":
+                    FILE_NAME = req["filename"]
+                    filepath = "./files/" + username + "/" + FILE_NAME
+                    try:
+                        os.remove(filepath)
+                        conn.sendall(bytes("OK", encoding="utf-8"))
+                    except:
+                        conn.sendall(bytes("NO", encoding="utf-8"))
+
                 elif req["action"] == "quit":
                     log('CON_END', 'Connection closed with ' + str(client_ip))
                     break
+
                 elif req["action"] == "check":
                     log('CON_CHK', 'Check request from' + str(client_ip))
                     msg = 'OK'
