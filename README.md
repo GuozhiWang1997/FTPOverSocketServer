@@ -1,5 +1,5 @@
 # FTPOverSocketServer
-This project is a course homework of CNT5106C@UF. It's a socket server that allow file upload and download.
+This project is a course homework of CNT5106C@UF. It's a socket server that allow uploading and downloading files.
 ## Environment
 Python 3 | PyYaml
 ## How to use
