@@ -1,1 +1,0 @@
-This is a txt file that indicates the directory is under "user01".
