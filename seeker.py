@@ -9,6 +9,7 @@
 
 import socket
 import json
+import os
 
 obj = socket.socket()
 address = input("Input server IP:")
@@ -51,6 +52,15 @@ def get_chunk(filename):
     print(filename + ' has received.')
 
 
+def combine_chunks(filename, count):
+    with open('Client ' + filename, 'ab') as file:
+        for i in range(count):
+            with open('Client ' + filename + '_chunk_' + str(i + 1) + '.fck', 'rb') as chunk:
+                chunk_size = os.path.getsize('Client ' + filename + '_chunk_' + str(i+1) + '.fck')
+                print(chunk_size)
+                file.write(chunk.read(chunk_size))
+
+
 def quitt():
     cmd = {"action": "quit"}
     command(cmd)
@@ -60,17 +70,21 @@ while True:
     inp = input("Select action:\n"
                 + " 1> test\n"
                 + " 2> get chunk list\n"
+                + " 3> get one chunk\n"
+                + " 4> combine chunks\n"
                 + " 9> quit\n")
     if inp == '1':
         test()
     elif inp == '2':
         get_list();
     elif inp == '3':
-        for i in range(9):
-            get_chunk('Phase2.pdf_chunk_' + str(i+1) + '.fck')
+        chunk_num = input("id:\n")
+        get_chunk('Phase2.pdf_chunk_' + str(chunk_num) + '.fck')
+    elif inp == '4':
+        combine_chunks('Phase2.pdf', 9)
     elif inp == '9':
         quitt()
-        break;
+        break
     else:
         print("Illegal choice!")
 
